@@ -20,9 +20,7 @@ void setup() {
   eigenSetUp();
   x = new FloatList[functions];
   y = new FloatList[functions];
-  centerShift = new PVector(200, height/2);
-  onScreen = new PVector(0,1);
-  scaled = new PVector(1200, 180);
+  reset();
 }
 
 void draw() {
@@ -59,6 +57,8 @@ void draw() {
     break;
   }
   //<keyboard bullshit>
+  //reset movement and scaling
+  if(keyTap(82)) reset();
   //show/hide functions
   if (keyTap(92)) hide = !hide;
   //n stuff
@@ -68,10 +68,14 @@ void draw() {
   if (keys[77]&&keyTap(38)) mUpdate(true);
   if (m>0&&keys[77]&&keyTap(40)) mUpdate(false);
   
-  if (keys[16]&&keys[37]) shiftCam(-10,0);
-  if (keys[16]&&keys[38]) shiftCam(0,-10);
-  if (keys[16]&&keys[39]) shiftCam(10,0);
-  if (keys[16]&&keys[40]) shiftCam(0,10);
+  if (keys[16]&&keys[37]) shiftCam(-1,0);
+  if (keys[16]&&keys[38]) shiftCam(0,-1);
+  if (keys[16]&&keys[39]) shiftCam(1,0);
+  if (keys[16]&&keys[40]) shiftCam(0,1);
+  if (keys[17]&&keys[37]) shiftCam(-10,0);
+  if (keys[17]&&keys[38]) shiftCam(0,-10);
+  if (keys[17]&&keys[39]) shiftCam(10,0);
+  if (keys[17]&&keys[40]) shiftCam(0,10);
   //time control
   if (keyTap(47)) autoPlay = 0;
   if (keyTap(46)) autoPlay = 1;
@@ -88,6 +92,12 @@ void draw() {
 void shiftCam(float x, float y){
   centerShift.set(centerShift.x-x,centerShift.y-y);
   onScreen.set(max(0,unScalerX(0)),min(1,unScalerX(width)));
+}
+
+void reset(){
+  centerShift = new PVector(200, height/2);
+  onScreen = new PVector(0,1);
+  scaled = new PVector(1200, 180);
 }
 
 void eigenSetUp() {
@@ -211,8 +221,7 @@ void mouseWheel(MouseEvent event) {
     timeInterval *= 1+e*0.2;
   }else{
     float scaleChange = 1+e*0.1;
-    scaled.set(scaled.x*scaleChange,scaled.y*scaleChange);
+    scaled.set(scaled.x*scaleChange,scaled.y);
     onScreen.set(max(0,unScalerX(0)),min(1,unScalerX(width)));
-    println(max(0,unScalerX(0)),min(1,unScalerX(width)));
   }
 }
