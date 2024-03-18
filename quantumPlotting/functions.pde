@@ -5,7 +5,8 @@ float referenceFunctions(int index, float x) {
   case 1:
     return -(sin(sq(n)*sq(PI)*time/2)*sin(n*PI*x)+sin(sq(m)*sq(PI)*time/2)*sin(m*PI*x));
   case 2:
-    return sq(referenceFunctions(0, x))+sq(referenceFunctions(1, x));
+    float waveSum = sq(referenceFunctions(0, x))+sq(referenceFunctions(1, x));
+    return n==m?waveSum/2:waveSum;
   case 3:
     float sumRe = 0;
     for(int i = 0; i<eigenIndex; i++){

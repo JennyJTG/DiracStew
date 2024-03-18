@@ -1,7 +1,8 @@
-PVector centerShift, scale, scaledMouseCoords;
+PVector centerShift, scaled, scaledMouseCoords, onScreen;
 FloatList x[];
 FloatList y[];
 float time, timeInterval = 0.00007;
+PVector cam;
 int autoPlay = 0;
 int n = 1, m = 2, functions = 69, steps = 1500;
 boolean hide = false;
@@ -20,7 +21,8 @@ void setup() {
   x = new FloatList[functions];
   y = new FloatList[functions];
   centerShift = new PVector(200, height/2);
-  scale = new PVector(1200, 180);
+  onScreen = new PVector(0,1);
+  scaled = new PVector(1200, 180);
 }
 
 void draw() {
@@ -37,22 +39,22 @@ void draw() {
   case 0:
     text("n: "+n+"\nm: "+m, width-240, 80);
     if (!hide) {
-      calcFunction(0, 0, 1, steps);
+      calcFunction(0, steps);
       renderFunction(0, 255, 0, 0, 255);
-      calcFunction(1, 0, 1, steps);
+      calcFunction(1, steps);
       renderFunction(1, 0, 0, 255, 128);
     }
-    calcFunction(2, 0, 1, steps);
+    calcFunction(2, steps);
     renderFunction(2, 0, 180, 180, 255);
     break;
   case 1:
     if (!hide) {
-      calcFunction(3, 0, 1, steps);
+      calcFunction(3, steps);
       renderFunction(3, 255, 0, 0, 255);
-      calcFunction(4, 0, 1, steps);
+      calcFunction(4, steps);
       renderFunction(4, 0, 0, 255, 128);
     }
-    calcFunction(5, 0, 1, steps);
+    calcFunction(5, steps);
     renderFunction(5, 180, 180, 180, 255);
     break;
   }
@@ -60,11 +62,16 @@ void draw() {
   //show/hide functions
   if (keyTap(92)) hide = !hide;
   //n stuff
-  if (keyTap(38)) nUpdate(true);
-  if (keyTap(40)) nUpdate(false);
+  if (keys[78]&&keyTap(38)) nUpdate(true);
+  if (n>0&&keys[78]&&keyTap(40)) nUpdate(false);
   //m stuff
-  if (keyTap(39)) mUpdate(true);
-  if (keyTap(37)) mUpdate(false);
+  if (keys[77]&&keyTap(38)) mUpdate(true);
+  if (m>0&&keys[77]&&keyTap(40)) mUpdate(false);
+  
+  if (keys[16]&&keys[37]) shiftCam(-10,0);
+  if (keys[16]&&keys[38]) shiftCam(0,-10);
+  if (keys[16]&&keys[39]) shiftCam(10,0);
+  if (keys[16]&&keys[40]) shiftCam(0,10);
   //time control
   if (keyTap(47)) autoPlay = 0;
   if (keyTap(46)) autoPlay = 1;
@@ -75,11 +82,13 @@ void draw() {
   //if(keyTap(51)) mode = 2;
   if (keyTap(69)) eigenSetUp();
   //<\keyboard bullshit>
-
   time+=autoPlay*timeInterval;
 }
 
-
+void shiftCam(float x, float y){
+  centerShift.set(centerShift.x-x,centerShift.y-y);
+  onScreen.set(max(0,unScalerX(0)),min(1,unScalerX(width)));
+}
 
 void eigenSetUp() {
   inputValues = loadStrings("inputValues.txt");
@@ -115,17 +124,33 @@ boolean keyTap(int index) {
   return false;
 }
 
-void calcFunction(int functionIndex, float rangeBegin, float rangeEnd, float steps) {
+void calcFunction(int functionIndex, float steps) {
   x[functionIndex] = new FloatList();
   y[functionIndex] = new FloatList();
-  float traverseX = rangeBegin;
-  float incrementX = (rangeEnd-rangeBegin)/steps;
+  float traverseX = onScreen.x;
+  float incrementX = (onScreen.y-onScreen.x)/steps;
   steps++;
   for (int i = 0; i<steps; i++) {
-    y[functionIndex].append(-scale.y*(referenceFunctions(functionIndex, traverseX))+centerShift.y);
-    x[functionIndex].append(scale.x*traverseX+centerShift.x);
+    y[functionIndex].append(scalerY(referenceFunctions(functionIndex, traverseX)));
+    x[functionIndex].append(scalerX(traverseX));
     traverseX+=incrementX;
   }
+}
+
+float scalerX(float inputX){
+  return scaled.x*inputX+centerShift.x;
+}
+
+float unScalerX(float inputX){
+  return (inputX-centerShift.x)/scaled.x;
+}
+
+float scalerY(float inputY){
+  return -scaled.y*inputY+centerShift.y;
+}
+
+float unScalerY(float inputY){
+  return -(inputY-centerShift.y)/scaled.y;
 }
 
 void renderFunction(int index, int r, int g, int b, int a) {
@@ -148,7 +173,7 @@ void renderFunction(int index, int r, int g, int b, int a) {
 }
 
 PVector mouseCoords() {
-  return(new PVector((mouseX-centerShift.x)/scale.x, -(mouseY-centerShift.y)/scale.y));
+  return(new PVector(unScalerX(mouseX), unScalerY(mouseY)));
 }
 
 void displayGridAxis() {
@@ -182,5 +207,12 @@ void keyReleased() {
 
 void mouseWheel(MouseEvent event) {
   float e = event.getCount();
-  timeInterval *= 1+e*0.2;
+  if(!keys[16]){
+    timeInterval *= 1+e*0.2;
+  }else{
+    float scaleChange = 1+e*0.1;
+    scaled.set(scaled.x*scaleChange,scaled.y*scaleChange);
+    onScreen.set(max(0,unScalerX(0)),min(1,unScalerX(width)));
+    println(max(0,unScalerX(0)),min(1,unScalerX(width)));
+  }
 }
