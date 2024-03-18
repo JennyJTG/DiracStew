@@ -2,7 +2,7 @@ PVector centerShift, scaled, scaledMouseCoords, onScreen;
 FloatList x[];
 FloatList y[];
 float time, timeInterval = 0.00007;
-float movementScale = 5, graphMin = 0, graphMax = 1;
+float movementScaleX = 5, movementScaleY = 5, graphMin = 0, graphMax = 1;
 int autoPlay = 0;
 int n = 1, m = 2, functions = 69, steps = 1500;
 boolean hide = false;
@@ -86,13 +86,13 @@ float sign(float i){
   if (keys[77]&&keyTap(38)) mUpdate(true);
   if (m>0&&keys[77]&&keyTap(40)) mUpdate(false);
   
-  if (keys[16]&&keys[37]) shiftCam(-movementScale,0);
+  if (keys[16]&&keys[37]) shiftCam(-movementScaleX,0);
   if (keys[16]&&keys[38]) shiftCam(0,-5);
-  if (keys[16]&&keys[39]) shiftCam(movementScale,0);
+  if (keys[16]&&keys[39]) shiftCam(movementScaleX,0);
   if (keys[16]&&keys[40]) shiftCam(0,5);
-  if (keys[17]&&keys[37]) shiftCam(-10*movementScale,0);
+  if (keys[17]&&keys[37]) shiftCam(-10*movementScaleX,0);
   if (keys[17]&&keys[38]) shiftCam(0,-50);
-  if (keys[17]&&keys[39]) shiftCam(10*movementScale,0);
+  if (keys[17]&&keys[39]) shiftCam(10*movementScaleX,0);
   if (keys[17]&&keys[40]) shiftCam(0,50);
   //time control
   if (keyTap(47)) autoPlay = 0;
@@ -159,19 +159,6 @@ boolean keyTap(int index) {
 }
 
 void calcFunction(int functionIndex, float steps) {
-  x[functionIndex] = new FloatList();
-  y[functionIndex] = new FloatList();
-  float traverseX = onScreen.x;
-  float incrementX = (onScreen.y-onScreen.x)/steps;
-  steps++;
-  for (int i = 0; i<steps; i++) {
-    y[functionIndex].append(scalerY(referenceFunctions(functionIndex, traverseX)));
-    x[functionIndex].append(scalerX(traverseX));
-    traverseX+=incrementX;
-  }
-}
-
-void calcFunction(int functionIndex, float beginIndex, float endIndex, float steps) {
   x[functionIndex] = new FloatList();
   y[functionIndex] = new FloatList();
   float traverseX = onScreen.x;
@@ -255,13 +242,16 @@ void keyReleased() {
 
 void mouseWheel(MouseEvent event) {
   float e = event.getCount();
-  if(!keys[16]){
-    timeInterval *= 1+e*0.2;
-  }else{
+  if(keys[16]){
     float scaleChange = 1+e*0.1;
     scaled.set(scaled.x*scaleChange,scaled.y);
     setOnScreen();
-    movementScale = (scalerX(graphMax)-scalerX(graphMin))/100;
+    movementScaleX = (scalerX(graphMax)-scalerX(graphMin))/100;
     println((scalerX(graphMax)-scalerX(graphMin))/100);
+  }else if(keys[17]){
+    float scaleChange = 1+e*0.1;
+    scaled.set(scaled.x,scaled.y*scaleChange);
+  }else{
+   timeInterval *= 1+e*0.2;
   }
 }
