@@ -2,7 +2,7 @@ PVector centerShift, scaled, scaledMouseCoords, onScreen;
 FloatList x[];
 FloatList y[];
 float time, timeInterval = 0.00007;
-PVector cam;
+float movementScale = 5, graphMin = 0, graphMax = 1;
 int autoPlay = 0;
 int n = 1, m = 2, functions = 69, steps = 1500;
 boolean hide = false;
@@ -20,10 +20,16 @@ void setup() {
   eigenSetUp();
   x = new FloatList[functions];
   y = new FloatList[functions];
-  reset();
+  reset(200, height/2, 1200, 180);
 }
 
-void draw() {
+float sign(float i){
+  if(i<0) return -1;
+  else if(i>0) return 1;
+  else return 0;
+}
+
+  void draw() {
   background(0);
   fill(255);
   text(frameRate, 10, 40);
@@ -55,10 +61,22 @@ void draw() {
     calcFunction(5, steps);
     renderFunction(5, 180, 180, 180, 255);
     break;
+   case 2:
+   if (!hide) {
+      calcFunction(6, steps);
+      renderFunction(6, 255, 0, 0, 255);
+      calcFunction(7, steps);
+      renderFunction(7, 0, 0, 255, 128);
+    }
+    calcFunction(8, steps);
+    renderFunction(8, 180, 180, 180, 255);
+    calcFunction(9, steps);
+    renderFunction(9, 0, 255, 0, 255);
+     break;
   }
   //<keyboard bullshit>
   //reset movement and scaling
-  if(keyTap(82)) reset();
+  if(keyTap(82)) reset(200, height/2, 1200, 180);
   //show/hide functions
   if (keyTap(92)) hide = !hide;
   //n stuff
@@ -68,22 +86,23 @@ void draw() {
   if (keys[77]&&keyTap(38)) mUpdate(true);
   if (m>0&&keys[77]&&keyTap(40)) mUpdate(false);
   
-  if (keys[16]&&keys[37]) shiftCam(-1,0);
-  if (keys[16]&&keys[38]) shiftCam(0,-1);
-  if (keys[16]&&keys[39]) shiftCam(1,0);
-  if (keys[16]&&keys[40]) shiftCam(0,1);
-  if (keys[17]&&keys[37]) shiftCam(-10,0);
-  if (keys[17]&&keys[38]) shiftCam(0,-10);
-  if (keys[17]&&keys[39]) shiftCam(10,0);
-  if (keys[17]&&keys[40]) shiftCam(0,10);
+  if (keys[16]&&keys[37]) shiftCam(-movementScale,0);
+  if (keys[16]&&keys[38]) shiftCam(0,-5);
+  if (keys[16]&&keys[39]) shiftCam(movementScale,0);
+  if (keys[16]&&keys[40]) shiftCam(0,5);
+  if (keys[17]&&keys[37]) shiftCam(-10*movementScale,0);
+  if (keys[17]&&keys[38]) shiftCam(0,-50);
+  if (keys[17]&&keys[39]) shiftCam(10*movementScale,0);
+  if (keys[17]&&keys[40]) shiftCam(0,50);
   //time control
   if (keyTap(47)) autoPlay = 0;
   if (keyTap(46)) autoPlay = 1;
   if (keyTap(44)) autoPlay = -1;
   //time control
-  if (keyTap(49)) mode = 0;
-  if (keyTap(50)) mode = 1;
-  //if(keyTap(51)) mode = 2;
+  if (keyTap(49)){ mode = 0; graphMin = 0; reset(200, height/2, 1200, 180); graphMax = 1; setOnScreen();}
+  if (keyTap(50)){ mode = 1; graphMin = 0; reset(200, height/2, 1200, 180); graphMax = 1; setOnScreen();}
+  if(keyTap(51)){ mode = 2; graphMin = -25; reset(width/2, height/2, 300, 180); graphMax = 25; setOnScreen();}
+  //reset eigens
   if (keyTap(69)) eigenSetUp();
   //<\keyboard bullshit>
   time+=autoPlay*timeInterval;
@@ -91,20 +110,25 @@ void draw() {
 
 void shiftCam(float x, float y){
   centerShift.set(centerShift.x-x,centerShift.y-y);
-  onScreen.set(max(0,unScalerX(0)),min(1,unScalerX(width)));
+  setOnScreen();
 }
 
-void reset(){
-  centerShift = new PVector(200, height/2);
+void setOnScreen(){
+  onScreen.set(sign(graphMin)*max(abs(graphMin),unScalerX(0)*graphMin),min(graphMax,unScalerX(width)));
+  println(abs(graphMin),unScalerX(0)*graphMin);
+}
+
+void reset(float shiftX, float shiftY, float scaleX, float scaleY){
+  centerShift = new PVector(shiftX, shiftY);
   onScreen = new PVector(0,1);
-  scaled = new PVector(1200, 180);
+  scaled = new PVector(scaleX, scaleY);
 }
 
 void eigenSetUp() {
   inputValues = loadStrings("inputValues.txt");
   eigenIndex = inputValues.length;
   probabilityWeightSum = 0;
-  eigenNummer = new float[eigenIndex][3];
+  eigenNummer = new float[eigenIndex][4];
   for (int i = 0; i<eigenIndex; i++) {
     String str[] = split(inputValues[i], ',');
     eigenNummer[i][0] = float(str[0]);
@@ -146,6 +170,20 @@ void calcFunction(int functionIndex, float steps) {
     traverseX+=incrementX;
   }
 }
+
+void calcFunction(int functionIndex, float beginIndex, float endIndex, float steps) {
+  x[functionIndex] = new FloatList();
+  y[functionIndex] = new FloatList();
+  float traverseX = onScreen.x;
+  float incrementX = (onScreen.y-onScreen.x)/steps;
+  steps++;
+  for (int i = 0; i<steps; i++) {
+    y[functionIndex].append(scalerY(referenceFunctions(functionIndex, traverseX)));
+    x[functionIndex].append(scalerX(traverseX));
+    traverseX+=incrementX;
+  }
+}
+
 
 float scalerX(float inputX){
   return scaled.x*inputX+centerShift.x;
@@ -222,6 +260,8 @@ void mouseWheel(MouseEvent event) {
   }else{
     float scaleChange = 1+e*0.1;
     scaled.set(scaled.x*scaleChange,scaled.y);
-    onScreen.set(max(0,unScalerX(0)),min(1,unScalerX(width)));
+    setOnScreen();
+    movementScale = (scalerX(graphMax)-scalerX(graphMin))/100;
+    println((scalerX(graphMax)-scalerX(graphMin))/100);
   }
 }
