@@ -21,6 +21,7 @@ functionality for user-inputted potential functions.
 {Shft+ScrlDn} -	Stretch the graph's x-axis.
 {Ctrl+ScrlUp} -	Shrink the graph's y-axis.
 {Ctrl+ScrlDn} -	Stretch the graph's y-axis.
+{r} - 		Reset UI scaling and translation.
 {\} - 		Hide/show wavefunction's real and imaginary plots.
 {e} - 		Load the eigenvalues from "inputValues.txt".
 {n+Arrow} -	Increase/decrease n's eigenvalue in mode (1).
