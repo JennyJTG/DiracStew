@@ -1,0 +1,76 @@
+
+=== DiracStew Help Manual ========================================================
+
+
+DiracStew is a niche but powerful quantum mechanics tool made for graphing
+non-relativistic, Schrodinger-compliant eigenfunctions. The program is, at this
+stage, in early development, but is planned to eventually have full and integrated
+functionality for user-inputted potential functions.
+
+
+=== Controls =====================================================================
+
+
+{>} - 		Start the graph's time evolution.
+{<} -		Rewind the graph's time evolution.
+{/} - 		Pause the graph's time evolution.
+{Shft+Arrow} -	Move the graph view in the arrow's direction.
+{ScrlUp} - 	Slow down the graph's time evolution.
+{ScrlDn} - 	Speed up the graph's time evolution.
+{Shft+ScrlUp} -	Shrink the graph's x-axis.
+{Shft+ScrlDn} -	Stretch the graph's x-axis.
+{Ctrl+ScrlUp} -	Shrink the graph's y-axis.
+{Ctrl+ScrlDn} -	Stretch the graph's y-axis.
+{\} - 		Hide/show wavefunction's real and imaginary plots.
+{e} - 		Load the eigenvalues from "inputValues.txt".
+{n+Arrow} -	Increase/decrease n's eigenvalue in mode (1).
+{m+Arrow} -	Increase/decrease m's eigenvalue in mode (1).
+
+
+=== Modes ========================================================================
+
+
+At this stage, the program processes eigenvalue superpositions in one of 3 modes,
+swapped between via the 1-3 numerical keys:
+
+
+(1) - Demo Mode (Default)
+	Two equally superpoitioned eigenfunctions with eigenvalues n and m in an
+	infinite square well potential (elaborated in the next mode descripiton).
+	Move between eigenvalues by holding {n} or {m} and using the up/down
+	arrows. Set n = m for stationary state graphs.
+
+(2) - Infinite Square Well
+	A superposition of arbitrarily many, user-inputted eigenvalues in an
+	infinite square well potential. V(x) = 0 for 0 < x < 1, and infinity for
+	x outside that range. Eigenvalues and their probability weights are put in
+	through the "inputValues.txt" file as (n,w), found in the same directory as
+	the program itself. For example, in the case of the ground state (n=1)
+	twice as likely as the first excited state (n=2), and only half as likely
+	as the second (n=3), the user would input:
+	
+1,1
+2,0.5
+3,2
+	
+	n must be a non-negative integer, while w can be any positive float value.
+	Performance is fairly smooth in this mode, and more or less any even
+	somewhat plausible set of eigenvalues will run on a decent computer. To
+	load eigenvalues from the file, simply save the text document and press
+	{e} in the program.
+
+(3) - Quantum Harmonic Oscillator
+	A superposition of arbitrarily many, user-inputted eigenvalues in a
+	quantum harmonic oscillator. V(x) = 0.5x^2 across all x values. Eigenvalues
+	and their weights are shared with mode (2), input and loaded the same way.
+	The graph is centered on rather than to the right of the y-axis, with the
+	graph's mass generally pulling toward the center. Because of the iterative
+	method currently used for the Hermite polynomials, required for generation
+	of oscillator eigenfunctions, the wavefunction calculations are much slower
+	than mode (2) for large sets of eigenvalues. This will be fixed eventually.
+
+	NOTE: Unlike in the infinite square well case, where the "zero-point energy"
+	(n=0) case gives E = 0 (ie.: NO particle exists in the well), the quantum
+	harmonic oscillator has nonzero energy in the n=0 case, thus the nontrivial
+	wavefunction solutions begin with n=0 in this case.
+	
