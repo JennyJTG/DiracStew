@@ -40,6 +40,9 @@ float sign(float i){
   text(scaledMouseCoords.x+", "+scaledMouseCoords.y, mouseX, mouseY);
   strokeWeight(3);
   switch(mode) {
+  case -1:
+  
+  break;
   case 0:
     text("n: "+n+"\nm: "+m, width-240, 80);
     if (!hide) {
