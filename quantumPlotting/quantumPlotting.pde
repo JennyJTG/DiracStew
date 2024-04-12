@@ -5,16 +5,23 @@ float time, timeInterval = 0.00007;
 float movementScaleX = 5, movementScaleY = 5, graphMin = 0, graphMax = 1;
 int autoPlay = 0;
 int n = 1, m = 2, functions = 69, steps = 1500;
-boolean hide = false;
+boolean hide = false, isFullscreen;
 int mode = 0;
 
-String[] inputValues;
+String[] inputValues, options;
 float probabilityWeightSum;
 int eigenIndex;
 float[][] eigenNummer;
 
 void setup() {
   size(1500, 800);
+  loadOptions();
+  surface.setTitle("~&%==Dirac Stew==%&~");
+  surface.setResizable(true);
+  if(isFullscreen){
+    surface.setSize(displayWidth, displayHeight);
+    surface.setLocation(0,0);
+  }
   frameRate(120);
   textSize(40);
   eigenSetUp();
@@ -29,7 +36,7 @@ float sign(float i){
   else return 0;
 }
 
-  void draw() {
+void draw() {
   background(0);
   fill(255);
   text(frameRate, 10, 40);
@@ -101,7 +108,10 @@ float sign(float i){
   if (keyTap(47)) autoPlay = 0;
   if (keyTap(46)) autoPlay = 1;
   if (keyTap(44)) autoPlay = -1;
-  //time control
+  //fullScreen
+  if(keyTap(122)) isFullscreen = !isFullscreen;
+  //open settings
+  if(keyTap(120)) mode = -1;
   if (keyTap(49)){ mode = 0; graphMin = 0; reset(200, height/2, 1200, 180); graphMax = 1; setOnScreen();}
   if (keyTap(50)){ mode = 1; graphMin = 0; reset(200, height/2, 1200, 180); graphMax = 1; setOnScreen();}
   if(keyTap(51)){ mode = 2; graphMin = -25; reset(width/2, height/2, 300, 180); graphMax = 25; setOnScreen();}
@@ -109,6 +119,16 @@ float sign(float i){
   if (keyTap(69)) eigenSetUp();
   //<\keyboard bullshit>
   time+=autoPlay*timeInterval;
+}
+
+void loadOptions() {
+  options = loadStrings("settings.txt");
+  for (int i = 0; i<options.length; i++) {
+    String str[] = split(options[i], '=');
+    options[i] = str[1];
+  }
+  isFullscreen = boolean(options[0]);
+  println(isFullscreen);
 }
 
 void shiftCam(float x, float y){
