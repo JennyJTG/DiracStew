@@ -18,10 +18,7 @@ void setup() {
   loadOptions();
   surface.setTitle("~&%==Dirac Stew==%&~");
   surface.setResizable(true);
-  if(isFullscreen){
-    surface.setSize(displayWidth, displayHeight);
-    surface.setLocation(0,0);
-  }
+  setFullscreen();
   frameRate(120);
   textSize(40);
   eigenSetUp();
@@ -30,16 +27,9 @@ void setup() {
   reset(200, height/2, 1200, 180);
 }
 
-float sign(float i){
-  if(i<0) return -1;
-  else if(i>0) return 1;
-  else return 0;
-}
-
 void draw() {
   background(0);
   fill(255);
-  text(frameRate, 10, 40);
   text("t: "+time, width-240, 40);
   strokeWeight(1);
   displayGridAxis();
@@ -48,7 +38,12 @@ void draw() {
   strokeWeight(3);
   switch(mode) {
   case -1:
-  
+    background(18);
+    fill(39);
+    noStroke();
+    rect(75,75,width-150,height-150,28);
+    fill(221, 163, 255);
+    
   break;
   case 0:
     text("n: "+n+"\nm: "+m, width-240, 80);
@@ -84,6 +79,8 @@ void draw() {
     renderFunction(9, 0, 255, 0, 255);
      break;
   }
+  fill(255);
+  text(frameRate, 10, 40);
   //<keyboard bullshit>
   //reset movement and scaling
   if(keyTap(82)) reset(200, height/2, 1200, 180);
@@ -111,10 +108,10 @@ void draw() {
   //fullScreen
   if(keyTap(122)) isFullscreen = !isFullscreen;
   //open settings
-  if(keyTap(120)) mode = -1;
+  if (keyTap(192)) mode = -1;
   if (keyTap(49)){ mode = 0; graphMin = 0; reset(200, height/2, 1200, 180); graphMax = 1; setOnScreen();}
   if (keyTap(50)){ mode = 1; graphMin = 0; reset(200, height/2, 1200, 180); graphMax = 1; setOnScreen();}
-  if(keyTap(51)){ mode = 2; graphMin = -25; reset(width/2, height/2, 300, 180); graphMax = 25; setOnScreen();}
+  if (keyTap(51)){ mode = 2; graphMin = -25; reset(width/2, height/2, 300, 180); graphMax = 25; setOnScreen();}
   //reset eigens
   if (keyTap(69)) eigenSetUp();
   //<\keyboard bullshit>
@@ -128,7 +125,15 @@ void loadOptions() {
     options[i] = str[1];
   }
   isFullscreen = boolean(options[0]);
-  println(isFullscreen);
+}
+
+void setFullscreen(){
+  if(isFullscreen){
+    surface.setSize(displayWidth, displayHeight);
+    surface.setLocation(-10,0);
+  }else{
+    
+  }
 }
 
 void shiftCam(float x, float y){
@@ -194,6 +199,11 @@ void calcFunction(int functionIndex, float steps) {
   }
 }
 
+float sign(float i){
+  if(i<0) return -1;
+  else if(i>0) return 1;
+  else return 0;
+}
 
 float scalerX(float inputX){
   return scaled.x*inputX+centerShift.x;
